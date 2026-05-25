@@ -1,0 +1,6 @@
+#requirements to run car_pred.py
+streamlit
+pandas
+scikit-learn
+tensorflow
+numpy
