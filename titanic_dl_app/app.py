@@ -8,14 +8,10 @@ import plotly.graph_objects as go
 # ==========================================
 @st.cache_resource
 def load_prediction_model():
-    """
-    Loads the trained TensorFlow/Keras model.
-    Replace 'titanic_model.h5' with the path to your actual saved model.
-    """
     try:
-        # In production, uncomment the line below:
-        return tf.keras.models.load_model('titanic_model.keras')
-        return None
+        import os
+        MODEL_PATH = os.path.join(os.path.dirname(__file__), "titanic_model.keras")
+        return tf.keras.models.load_model(MODEL_PATH)
     except Exception as e:
         st.error(f"Error loading model: {e}")
         return None
