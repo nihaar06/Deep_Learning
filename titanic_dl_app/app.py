@@ -65,7 +65,7 @@ with st.container():
     col_icon, col_title = st.columns([1, 5])
     with col_icon:
         # AI/Project Related Visual Icon
-        st.markdown("<h1 style='font-size: 5rem; text-align: center; margin:0;'>🧠</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='font-size: 5rem; text-align: center; margin:0;'>🚢</h1>", unsafe_allow_html=True)
     with col_title:
         st.markdown("<p class='main-header'>Titanic Survival Prediction System</p>", unsafe_allow_html=True)
         st.markdown("<p class='sub-header'>Deep Learning Based Passenger Survival Prediction</p>", unsafe_allow_html=True)
