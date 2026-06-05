@@ -10,10 +10,21 @@ st.set_page_config(
     page_title="Fraud Detection Dashboard",
     layout="wide"
 )
+from pathlib import Path
+
+st.write("Current directory:", Path.cwd())
+
+st.write(
+    list(Path(__file__).parent.iterdir())
+)
+from pathlib import Path
+from tensorflow.keras.models import load_model
+
+MODEL_PATH = Path(__file__).parent / "fraud_lstm_attention.keras"
 
 @st.cache_resource
 def load_fraud_model():
-    return load_model("fraud_lstm_attention.keras")
+    return load_model(MODEL_PATH)
 
 model = load_fraud_model()
 
