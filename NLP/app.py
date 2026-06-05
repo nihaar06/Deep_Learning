@@ -12,11 +12,7 @@ st.set_page_config(
 )
 from pathlib import Path
 
-st.write("Current directory:", Path.cwd())
 
-st.write(
-    list(Path(__file__).parent.iterdir())
-)
 from pathlib import Path
 from tensorflow.keras.models import load_model
 
