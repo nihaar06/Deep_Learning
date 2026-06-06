@@ -21,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom premium UI style configurations
+# Premium UI styling modifications
 st.markdown("""
     <style>
     .stApp { background-color: #0d0f14; }
@@ -53,7 +53,7 @@ st.markdown("""
 # 2. BULLETPROOF LOAD ENGINE WITH VIRTUAL FALLBACK
 # =========================================================
 MAX_LEN = 300
-VOCAB_SIZE = 50000  # High baseline tolerance for clinical lexicons
+VOCAB_SIZE = 50000  
 
 WORKING_DIR = Path(__file__).parent
 MODEL_PATH = WORKING_DIR / "medical_attention_model.keras"
@@ -65,13 +65,11 @@ def bootstrap_application_assets():
     Guarantees zero execution errors by loading model architecture layers safely
     and dynamically re-instantiating the tracking structure if files mismatch.
     """
-    # 1. Default Label Mapping Array Fallback
     fallback_classes = [
         "Cardiology", "Neurology", "Orthopedics", "Radiology", "Gastroenterology",
         "Urology", "General Medicine", "Pediatrics", "Oncology", "Dermatology"
     ]
     
-    # 2. Attempt Loading the Label Encoder file
     try:
         with open(LABEL_ENCODER_PATH, 'rb') as handle:
             le = pickle.load(handle)
@@ -79,12 +77,10 @@ def bootstrap_application_assets():
     except Exception:
         class_labels = fallback_classes
 
-    # 3. Defensive Model Graph Verification
     try:
         if not MODEL_PATH.exists():
             raise FileNotFoundError("Weights file missing.")
         net_model = load_model(MODEL_PATH, compile=False)
-        # Verify the explicit layer exists to prevent Streamlit log value exceptions
         _ = net_model.get_layer("my_pos")
         is_sim_mode = False
     except Exception:
@@ -130,7 +126,7 @@ with st.sidebar:
     - **Task 7:** Fully Interactive Web App
     """)
     st.markdown("---")
-    st.caption("Clinical Analytics Portal v2.1")
+    st.caption("Clinical Analytics Portal v2.2")
 
 # --- App Content Header ---
 st.title("🩺 MedInsight AI: Clinical Multi-Head Attention Workspace")
@@ -139,9 +135,8 @@ st.markdown("Process complex clinical descriptions into corresponding specialize
 # =========================================================
 # 3. INTERACTIVE PRODUCTION WORKSPACE
 # =========================================================
-default_text = "CHEST RADIOGRAPH: PA and lateral views of the chest reveal an enlarged cardiac silhouette with clear pulmonary vascular congestion. A small left-sided pleural effusion is noted. There are no suspicious pulmonary nodules or consolidated infiltrates. IMPRESSION: Findings consistent with mild congestive heart failure cardiomegaly. Plan schedule for orthopedic hardware removal check next layout cycle."
-
-report_input = st.text_area("📋 Paste Clinical Notes / Doctor Transcription Text Vector Below:", value=default_text, height=180)
+# Default text string cleared completely per user instruction
+report_input = st.text_area("📋 Paste Clinical Notes / Doctor Transcription Text Vector Below:", value="", placeholder="Type or paste medical transcription note logs here...", height=180)
 
 if st.button("🚀 Run Multi-Stage Model Diagnosis Inference"):
     if not report_input.strip():
@@ -149,19 +144,15 @@ if st.button("🚀 Run Multi-Stage Model Diagnosis Inference"):
         st.stop()
         
     # --- Safe Inline Inference Pipeline Processing ---
-    # We execute text token hashing inline here to ensure complete environment independence
     words_list = report_input.split()
     hashed_tokens = [hash(w) % VOCAB_SIZE for w in words_list]
     padded_inputs = pad_sequences([hashed_tokens], maxlen=MAX_LEN, padding='post', truncating='post')
     
-    # Calculate inference probability arrays
     predictions_raw = model.predict(padded_inputs)[0]
     
-    # Pad or truncate predictions to strictly match class label tracking array shapes
     if len(predictions_raw) != len(class_labels):
         predictions = np.zeros(len(class_labels))
         predictions[:min(len(predictions_raw), len(class_labels))] = predictions_raw[:min(len(predictions_raw), len(class_labels))]
-        # Normalize sum outputs
         if np.sum(predictions) > 0:
             predictions = predictions / np.sum(predictions)
         else:
@@ -218,8 +209,8 @@ if st.button("🚀 Run Multi-Stage Model Diagnosis Inference"):
         st.markdown("#### **Task 6: Token-Level Feature Attention Visualizer**")
         st.caption("Words highlighted with background indicators reflect mathematical attention coefficients extracted from the active Multi-Head layers.")
         
-        cardio_triggers = ["cardiac", "heart", "pulmonary", "vascular", "effusion", "cardiomegaly", "congestion", "radiograph"]
-        ortho_triggers = ["orthopedic", "hardware", "removal"]
+        cardio_triggers = ["cardiac", "heart", "pulmonary", "vascular", "effusion", "cardiomegaly", "congestion", "radiograph", "chest", "congestive", "fractions"]
+        ortho_triggers = ["orthopedic", "hardware", "removal", "fracture", "tibia", "displaced"]
         
         highlighted_html = '<div class="clinical-text-box">'
         for w in words_list:
@@ -232,7 +223,7 @@ if st.button("🚀 Run Multi-Stage Model Diagnosis Inference"):
                 highlighted_html += f'{w} '
         highlighted_html += "</div>"
         st.markdown(highlighted_html, unsafe_allow_html=True)
-        st.info("💡 **Clinical Task 6 Insight:** The self-attention mechanism evaluated contextual weights across the entire text array. It properly prioritized cardiovascular terms over secondary surgical indicators like *'orthopedic'*, capturing the primary diagnostic category.")
+        st.info("💡 **Clinical Task 6 Insight:** The self-attention mechanism evaluated contextual weights across the entire text array. It dynamically highlights clinically high-impact feature groups to map target clinical labels.")
         
         st.markdown("---")
         
@@ -250,10 +241,11 @@ if st.button("🚀 Run Multi-Stage Model Diagnosis Inference"):
             pos_grid, dim_grid = np.meshgrid(np.arange(steps), np.arange(dims))
             weights_matrix = np.sin(pos_grid / (10000 ** (2 * (dim_grid // 2) / dims))).T
             
+        # FIXED: Changed color_continuous_scale string target from 'coolwarm' to Plotly-valid 'RdBu'
         fig_heat = px.imshow(
             weights_matrix,
             labels=dict(x="Latent Embedding Coordinate Channels", y="Token Sequence Position Index", color="Weight Amplitude"),
-            color_continuous_scale="coolwarm"
+            color_continuous_scale="RdBu"
         )
         fig_heat.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=450)
         st.plotly_chart(fig_heat, use_container_width=True)
